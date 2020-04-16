@@ -15,85 +15,12 @@ import site
 import sys
 
 
-#HELPFUL LINKS
-# https://selenium-python.readthedocs.io/locating-elements.html
-
 def run():
     firefox_browser = browser()
-    users_creator(firefox_browser, 2)
+    #users_creator(firefox_browser, 2)
+    login(firefox_browser)
     firefox_browser.quit()
     
-def login(browser, username, password):
-    browser.get("https://www.instagram.com/accounts/login")
-    time.sleep(3)
-    username_field = browser.find_element(By.NAME, "username")
-    password_field = browser.find_element(By.NAME, "password")
-    username_field.clear()
-    password_field.clear()
-    username_field.send_keys(username)
-    password_field.send_keys(password)
-    password_field.send_keys(Keys.ENTER)
-
-    print(check_login(browser))
-
-def check_login(browser):
-    print("check_login")
-    time.sleep(5)
-    logged = False
-    test = check_element_exist("ID", "slfErrorAlert")
-
-    try:
-        login = browser.find_element(By.ID, "slfErrorAlert")
-
-    except:
-        print("except")
-        try:
-            print("try1")
-            verification_code_required = browser.find_element(By.ID, "verificationCodeDescription")
-            two_factor_authentication(browser)
-            try:
-                print("try2")
-                try:
-                    myElem = WebDriverWait(browser, 120).until(
-                        EC.presence_of_element_located((By.CLASS_NAME, "_6q-tv")))
-                    print("Page is ready!")
-
-                except TimeoutException:
-                    print("Loading took too much time!")
-
-                sooo = browser.find_element(By.CLASS_NAME, "_6q-tv")
-                logged = True
-            except Exception as e:
-                print("except2")
-                print(e)
-
-        except:
-            print("except1")
-            
-            
-    return logged
-
-def check_element_exist(search_by, elemnt):
-    #TODO CHECK IF WORKS (NOT SURE)
-    exist = False
-    search_by = "By." + str(search_by)
-    print("search_by ->" + str(search_by))
-
-    try:
-        element = browser.find_element(search_by, elemnt)
-        exist = True
-    except:
-        pass
-
-    return exist
-    
-def two_factor_authentication(browser):
-    print("two_factor_authentication")
-    authentication_code = input("Authentication code: ")
-    code_field = browser.find_element(By.NAME, "verificationCode")
-    code_field.send_keys(authentication_code)
-    code_field.send_keys(Keys.ENTER)
-
 def os_detect():
     print("os_detect")
     os = None
@@ -124,6 +51,26 @@ def browser():
     else:
         print("ERROR: type of operating system not detected")
 
+def login(browser):
+    created_users = open('./created_users.txt', "r")
+    lines = created_users.readlines()
+    for line in lines:
+        splitted = line.split("-")
+        username = splitted[0]
+        password = splitted[1]
+        browser.get("https://www.instagram.com/accounts/login")
+        time.sleep(random.uniform(4, 5))
+        username_field = browser.find_element(By.NAME, "username")
+        password_field = browser.find_element(By.NAME, "password")
+        username_field.clear()
+        password_field.clear()
+        username_field.click()
+        username_field.send_keys(username)
+        password_field.click()
+        password_field.send_keys(password)
+        browser.find_element(By.CSS_SELECTOR, ".sqdOP > .Igw0E").click()
+        time.sleep(random.uniform(3, 4))
+        #TODO whatever you want
 
 def insta_user_create(browser):
     names_files = open("./data/names.txt")
@@ -160,7 +107,7 @@ def insta_user_create(browser):
 
     browser.get("https://www.instagram.com/accounts/emailsignup")
     browser.set_window_size(867, 692)
-    time.sleep(5)
+    time.sleep(random.uniform(4, 5))
 
     number = 0
     account_created = False
