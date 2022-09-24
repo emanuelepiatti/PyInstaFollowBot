@@ -16,12 +16,20 @@ import sys
 
 
 def run():
-    firefox_browser = browser()
-    #users_creator(firefox_browser, 2)
-    login(firefox_browser)
-    firefox_browser.quit()
+
+    try:
+        firefox_browser = browser()
+        users_creator(firefox_browser, 2)
+        #login(firefox_browser)
+        firefox_browser.quit()
+    
+    except Exception as e:
+        print("ERROR")
+        print(e)
+        #firefox_browser.quit()
     
 def os_detect():
+    #TODO add all mac processors M and Intel
     print("os_detect")
     os = None
     if sys.platform.startswith('linux'):
@@ -49,17 +57,17 @@ def browser():
         return browser
 
     else:
-        print("ERROR: type of operating system not detected")
+        print("ERROR: operating system not detected")
 
 def login(browser):
-    created_users = open('./created_users.txt', "r")
+    created_users = open('./created_users.txt.dat', 'w+')
     lines = created_users.readlines()
     for line in lines:
         splitted = line.split("-")
         username = splitted[0]
         password = splitted[1]
-        browser.get("https://www.instagram.com/accounts/login")
         time.sleep(random.uniform(4, 5))
+        
         username_field = browser.find_element(By.NAME, "username")
         password_field = browser.find_element(By.NAME, "password")
         username_field.clear()
@@ -94,7 +102,7 @@ def insta_user_create(browser):
     surname = surname.rstrip("\n")
 
     username = str(name + surname)
-    username = username.lower()
+    username = username.lower() + "lalala"
     e_mail = username + "@gmail.com"
     password = password_generator(15)
 
@@ -107,11 +115,14 @@ def insta_user_create(browser):
 
     browser.get("https://www.instagram.com/accounts/emailsignup")
     browser.set_window_size(867, 692)
-    time.sleep(random.uniform(4, 5))
+    time.sleep(random.uniform(2, 3))
 
     number = 0
     account_created = False
     while(account_created == False):
+        browser.find_element(By.XPATH, '//button[text()="Only allow essential cookies"]').click()
+        time.sleep(random.uniform(4, 5))
+    
         emailOrPhone_field = browser.find_element(By.NAME, "emailOrPhone")
         fullName_field = browser.find_element(By.NAME, "fullName")
         username_field = browser.find_element(By.NAME, "username")
@@ -129,6 +140,9 @@ def insta_user_create(browser):
         submit_button.click()
 
         time.sleep(random.uniform(2, 4))
+
+        birthday_date_filler(browser)
+
         try:
             browser.find_element(By.CSS_SELECTOR, ".eiUFA")
             browser.find_element(By.ID, "igCoreRadioButtonageRadioabove_18").click()
@@ -157,6 +171,12 @@ def insta_user_create(browser):
 
     time.sleep(random.uniform(10, 15))
     return {'username':username, 'password': password}
+
+def birthday_date_filler(browser):
+    selects = browser.find_element(By.XPATH, "//select[@class='h144Z  ']")
+    
+    print(select)
+    #select.select_by_value('1')
 
 def password_generator(lenght):
     alphabet = string.ascii_letters + string.digits
