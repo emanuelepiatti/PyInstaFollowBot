@@ -2,10 +2,12 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium import webdriver
 from random import randrange
+from minutemail import Mail
 import datetime
 import secrets
 import random
@@ -14,19 +16,18 @@ import time
 import site
 import sys
 
-
 def run():
 
     try:
         firefox_browser = browser()
-        users_creator(firefox_browser, 2)
+        users_creator(firefox_browser, 1)
         #login(firefox_browser)
         firefox_browser.quit()
     
     except Exception as e:
         print("ERROR")
         print(e)
-        #firefox_browser.quit()
+        firefox_browser.quit()
     
 def os_detect():
     #TODO add all mac processors M and Intel
@@ -103,14 +104,14 @@ def insta_user_create(browser):
 
     username = str(name + surname)
     username = username.lower() + "lalala"
-    e_mail = username + "@gmail.com"
+    email = email_creator(browser)
     password = password_generator(15)
-
+    
     print("-----TRYING------")
     print("username: " + username)
     print("name: " + name)
     print("surname: " + surname)
-    print("email: " + e_mail)
+    print("email: " + email)
     print("password: " + password)
 
     browser.get("https://www.instagram.com/accounts/emailsignup")
@@ -119,6 +120,7 @@ def insta_user_create(browser):
 
     number = 0
     account_created = False
+    first_time = True
     while(account_created == False):
         browser.find_element(By.XPATH, '//button[text()="Only allow essential cookies"]').click()
         time.sleep(random.uniform(4, 5))
@@ -130,7 +132,7 @@ def insta_user_create(browser):
         submit_button = browser.find_element(By.CSS_SELECTOR, ".bkEs3:nth-child(1) > .sqdOP")
 
         emailOrPhone_field.click()
-        emailOrPhone_field.send_keys(e_mail)
+        emailOrPhone_field.send_keys(email)
         fullName_field.click()
         fullName_field.send_keys(name + " " + surname)
         username_field.click()
@@ -142,18 +144,23 @@ def insta_user_create(browser):
         time.sleep(random.uniform(2, 4))
 
         birthday_date_filler(browser)
+        #email_confirmation(browser, email)
 
         try:
+            '''
             browser.find_element(By.CSS_SELECTOR, ".eiUFA")
             browser.find_element(By.ID, "igCoreRadioButtonageRadioabove_18").click()
             next_buttons = browser.find_elements_by_xpath("//*[contains(text(), 'Next')]")
             next_buttons[1].click()
+            '''
+            check_button = browser.find_elements(By.CLASS_NAME, "glyphsSpriteEmail_confirm u-__7")
             account_created = True
-            print("CREATED")
+            first_time = False
+            print("NEED EMAIL CONFIRMATION")
             
         except:
             print("NOPE")
-            e_mail = username + str(number) + "@gmail.com"
+            email = username + str(number) + "@gmail.com"
             username = username + str(number)
             number += 1
 
@@ -166,17 +173,40 @@ def insta_user_create(browser):
             print("username: " + username)
             print("name: " + name)
             print("surname: " + surname)
-            print("email: " + e_mail)
+            print("email: " + email)
             print("password: " + password)
 
     time.sleep(random.uniform(10, 15))
     return {'username':username, 'password': password}
 
 def birthday_date_filler(browser):
-    selects = browser.find_element(By.XPATH, "//select[@class='h144Z  ']")
-    
-    print(select)
-    #select.select_by_value('1')
+    print("birthday_date_filler")
+    selects = browser.find_elements(By.CLASS_NAME, "h144Z  ")
+
+    for i in range(len(selects)):
+        select = selects[i]
+        select = Select(select)
+
+        if i == len(selects)-1:
+            select.select_by_value('2000')
+        else:
+            select.select_by_value('1')
+
+    time.sleep(random.uniform(2, 3))
+    browser.find_element(By.XPATH, "//*[contains(text(), 'Next')]").click()
+
+    print("birthday_date_filler OK")
+
+def email_creator(browser):
+    print("email_creator")
+    browser.get("https://10minutemail.net")
+    time.sleep(random.uniform(2, 3))
+    new_email = browser.find_element(By.ID, "fe_text").get_attribute('value')
+
+    return new_email
+
+def email_confirmation(browser, email):
+    print("op")
 
 def password_generator(lenght):
     alphabet = string.ascii_letters + string.digits
