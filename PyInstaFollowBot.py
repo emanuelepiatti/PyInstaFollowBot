@@ -49,8 +49,8 @@ def browser():
     os_detected = os_detect()
     if os_detected:
         options = Options()
-        #options.headless = True
-        options.headless = False
+        options.headless = True
+        #options.headless = False
         profile = webdriver.FirefoxProfile()
         profile.set_preference('intl.accept_languages', 'en-US, en')
         path = "./geckodriver/" + os_detected
@@ -144,7 +144,7 @@ def insta_user_create(browser):
         time.sleep(random.uniform(2, 4))
 
         birthday_date_filler(browser)
-        #email_confirmation(browser, email)
+        email_confirmation(browser, email)
 
         try:
             '''
@@ -156,7 +156,6 @@ def insta_user_create(browser):
             check_button = browser.find_elements(By.CLASS_NAME, "glyphsSpriteEmail_confirm u-__7")
             account_created = True
             first_time = False
-            print("NEED EMAIL CONFIRMATION")
             
         except:
             print("NOPE")
@@ -194,6 +193,7 @@ def birthday_date_filler(browser):
 
     time.sleep(random.uniform(2, 3))
     browser.find_element(By.XPATH, "//*[contains(text(), 'Next')]").click()
+    time.sleep(random.uniform(5, 6))
 
     print("birthday_date_filler OK")
 
@@ -206,7 +206,26 @@ def email_creator(browser):
     return new_email
 
 def email_confirmation(browser, email):
-    print("op")
+    print("email_confirmation")
+    browser.execute_script("window.open('');")
+    browser.switch_to.window(browser.window_handles[1])
+    browser.get("https://10minutemail.net")
+    
+    time.sleep(random.uniform(4, 5))
+    
+
+    email_found = False
+    while email_found == False:
+        time.sleep(10)
+        emails = browser.find_elements( By.CLASS_NAME, "row-link")
+        for email in emails:
+            if "is your Instagram code" in email.text:
+                email_found = True
+                print("TROVATA")
+                confirmation_code = email.text[0:5]
+                print(confirmation_code)
+            
+        
 
 def password_generator(lenght):
     alphabet = string.ascii_letters + string.digits
