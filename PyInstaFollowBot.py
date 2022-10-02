@@ -49,8 +49,8 @@ def browser():
     os_detected = os_detect()
     if os_detected:
         options = Options()
-        options.headless = True
-        #options.headless = False
+        #options.headless = True
+        options.headless = False
         profile = webdriver.FirefoxProfile()
         profile.set_preference('intl.accept_languages', 'en-US, en')
         path = "./geckodriver/" + os_detected
@@ -222,10 +222,16 @@ def email_confirmation(browser, email):
             if "is your Instagram code" in email.text:
                 email_found = True
                 print("TROVATA")
-                confirmation_code = email.text[0:5]
+                confirmation_code = email.text[0:6]
                 print(confirmation_code)
-            
-        
+                browser.switch_to.window(browser.window_handles[0])
+                email_confirmation_code_field = browser.find_element(By.NAME, "email_confirmation_code")
+                email_confirmation_code_field.send_keys(confirmation_code)
+                time.sleep(random.uniform(1, 2))
+                browser.find_element(By.XPATH, "//*[contains(text(), 'Next')]").click()
+                time.sleep(60)
+                
+                
 
 def password_generator(lenght):
     alphabet = string.ascii_letters + string.digits
